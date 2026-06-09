@@ -1,26 +1,59 @@
 # Odysseus Plugin for Obsidian
 
-A plugin project for integrating with the Odysseus local AI platform.
+Obsidian vault integration for the Odysseus local AI workspace.
 
-## Branching model
+This plugin adds:
 
-- `main` = stable releases only
-- `dev` = active development branch
-- Open Pull Requests against `dev`
-- Release to `main` only after validation
+- a right-docked Obsidian panel in the Odysseus UI
+- file tree browsing, markdown editing, autosave, rename/delete, and search
+- agent tools for listing, reading, writing, and searching markdown notes
+- per-user vault isolation when Odysseus authentication is enabled
 
-## Getting started
+## Repository Split
 
-1. Clone the repository
-2. Use the `dev` branch for feature work
-3. Configure local environment variables (do not commit secrets)
+This repository contains only the Obsidian plugin.
 
-## Local configuration
+Core Odysseus changes belong in [`fuzzy123-ai/odysseus-fuzzy`](https://github.com/fuzzy123-ai/odysseus-fuzzy), not in this plugin repository and not in upstream repositories owned by other projects. The plugin expects the Odysseus core plugin loader to support:
 
-Copy `.env.example` to `.env` (or `.env.local`) and adapt values for your machine.
+- dynamic plugin discovery from `plugins/<plugin-name>/plugin.py`
+- `ctx.add_router(...)`
+- `ctx.register_tool(...)`
+- `ctx.register_frontend_script(...)`
 
-## Open-source collaboration
+## Install
 
-- Keep PRs focused and small
-- Document behavior changes in PR descriptions
-- Avoid hardcoding machine-specific paths or tokens
+From the root of an Odysseus checkout:
+
+```powershell
+git clone -b dev https://github.com/fuzzy123-ai/Odysseus-plugin-obisidan.git plugins/obsidian
+```
+
+Restart Odysseus after cloning. The plugin loader imports `plugins/obsidian/plugin.py`, registers the API routes, and loads the browser panel through `/api/plugins/loader.js`.
+
+Use this with the plugin-loader branch from `fuzzy123-ai/odysseus-fuzzy` until the loader is available in your chosen Odysseus base.
+
+## Configuration
+
+By default, vaults are stored per user under Odysseus' data directory:
+
+```text
+data/obsidian_vaults/<owner>
+```
+
+To point to an existing vault path, set:
+
+```text
+OBSIDIAN_VAULT_DIR=C:\path\to\vaults\{owner}
+```
+
+`{owner}` is replaced with the authenticated username, or `default` when auth is disabled.
+
+## Development
+
+Use the `dev` branch for active work and open pull requests against `dev`.
+
+Run the plugin tests from an Odysseus checkout after cloning this repository into `plugins/obsidian`:
+
+```powershell
+python -m pytest tests/test_plugin_obsidian.py
+```

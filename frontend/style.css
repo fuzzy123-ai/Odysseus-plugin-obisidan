@@ -1,0 +1,677 @@
+/* =============================================================
+   Obsidian Plugin for Odysseus — Panel-based UI (Option B)
+   Right-docked panel like Brain/Notes
+   ============================================================= */
+
+/* ─── Panel Backdrop ──────────────────────────────────────────── */
+#obsidian-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 100vh;
+  z-index: 254;
+  display: flex;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+#obsidian-panel-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body.obsidian-open #obsidian-panel-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Panel Content Container */
+.obsidian-panel-content {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 55vw;
+  max-width: 960px;
+  min-width: 540px;
+  height: 100vh;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 255;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.obsidian-open #obsidian-panel {
+  width: 55vw;
+  max-width: 960px;
+  min-width: 540px;
+}
+
+body.obsidian-open .obsidian-panel-content {
+  transform: translateX(0);
+}
+
+/* ─── Panel Header ──────────────────────────────────────────── */
+.obsidian-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.obsidian-panel-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--red);
+  font-size: 14px;
+}
+
+.obsidian-panel-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.obsidian-panel-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.obsidian-panel-btn:hover {
+  opacity: 1;
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.obsidian-panel-btn#obsidian-panel-close:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+/* ─── Panel Body ────────────────────────────────────────────── */
+.obsidian-panel-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* ─── Sidebar / File Tree ──────────────────────────────────── */
+.obsidian-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  padding-right: 12px;
+  min-height: 0;
+}
+
+.obsidian-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.obsidian-actions button {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.obsidian-actions button:hover {
+  background: var(--fg);
+  color: var(--bg);
+  opacity: 1;
+}
+
+.obsidian-search-box {
+  margin-bottom: 10px;
+}
+
+#obsidian-search-input {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg);
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+#obsidian-search-input:focus {
+  border-color: var(--accent, var(--red));
+}
+
+.obsidian-file-tree {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  user-select: none;
+}
+
+/* File Tree Nodes styling */
+.tree-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-item-header {
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 6px;
+  color: var(--fg);
+  opacity: 0.85;
+}
+
+.tree-item-header:hover {
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+  opacity: 1;
+}
+
+.tree-item.active > .tree-item-header {
+  background: color-mix(in srgb, var(--accent, var(--red)) 10%, transparent);
+  color: var(--accent, var(--red));
+  font-weight: 500;
+  opacity: 1;
+}
+
+.tree-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.tree-item-icon svg {
+  stroke-width: 2;
+}
+
+.tree-item-icon svg.chevron {
+  width: 8px;
+  height: 8px;
+  margin-right: 2px;
+  transition: transform 0.15s ease;
+}
+
+.tree-item-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-item-children {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Search Results */
+.search-result-item {
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  margin-bottom: 4px;
+}
+
+.search-result-item:hover {
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+}
+
+.search-result-path {
+  font-weight: bold;
+  color: var(--accent, var(--red));
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.search-result-matches {
+  font-size: 11px;
+  opacity: 0.8;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.search-result-match {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.obsidian-no-results {
+  text-align: center;
+  padding: 12px;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* ─── Workspace ────────────────────────────────────────────── */
+.obsidian-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.obsidian-empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.obsidian-editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Editor Header */
+.obsidian-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.obsidian-current-note-title {
+  font-size: 15px;
+  font-weight: bold;
+  font-family: 'Fira Code', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.obsidian-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.obsidian-editor-actions button {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.obsidian-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg);
+  font-size: 11px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.obsidian-view-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.obsidian-toggle-track {
+  position: relative;
+  width: 38px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.obsidian-toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--fg);
+  opacity: 0.72;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.obsidian-view-toggle input:checked + .obsidian-toggle-track {
+  border-color: var(--accent, var(--red));
+  background: color-mix(in srgb, var(--accent, var(--red)) 18%, transparent);
+}
+
+.obsidian-view-toggle input:checked + .obsidian-toggle-track::after {
+  transform: translateX(18px);
+  opacity: 1;
+}
+
+.btn-secondary {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--red);
+}
+
+.btn-danger:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+/* ─── Split Pane ───────────────────────────────────────────── */
+.obsidian-editor-panes {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.obsidian-pane {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.obsidian-divider {
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Textarea / Editor */
+#obsidian-textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  background: transparent;
+  color: var(--fg);
+  border: none;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  outline: none;
+  padding: 12px 10px;
+  box-sizing: border-box;
+}
+
+/* Preview Pane */
+.obsidian-preview-pane {
+  padding: 8px 12px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.obsidian-preview-pane a {
+  color: var(--accent, var(--red));
+  text-decoration: none;
+}
+
+.obsidian-preview-pane a:hover {
+  text-decoration: underline;
+}
+
+.obsidian-preview-pane code {
+  font-family: 'Fira Code', monospace;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.obsidian-preview-pane pre {
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+.obsidian-preview-pane pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.obsidian-preview-pane h1, 
+.obsidian-preview-pane h2, 
+.obsidian-preview-pane h3 {
+  color: var(--fg);
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  padding-bottom: 4px;
+}
+
+.obsidian-preview-pane h1 { font-size: 1.5em; }
+.obsidian-preview-pane h2 { font-size: 1.3em; }
+.obsidian-preview-pane h3 { font-size: 1.1em; }
+
+.obsidian-preview-pane p {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+/* Graph View */
+.obsidian-graph-view {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background:
+    linear-gradient(color-mix(in srgb, var(--fg) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--fg) 4%, transparent) 1px, transparent 1px),
+    color-mix(in srgb, var(--bg) 88%, var(--panel, var(--bg)));
+  background-size: 28px 28px;
+}
+
+.obsidian-graph-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
+  opacity: 0.55;
+  font-size: 13px;
+}
+
+.obsidian-graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.obsidian-graph-edge {
+  stroke: color-mix(in srgb, var(--fg) 28%, transparent);
+  stroke-width: 1.4;
+}
+
+.obsidian-graph-node {
+  cursor: pointer;
+  outline: none;
+}
+
+.obsidian-graph-node circle {
+  fill: var(--bg);
+  stroke: var(--fg);
+  stroke-width: 1.6;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.22));
+}
+
+.obsidian-graph-node text {
+  fill: var(--fg);
+  font-size: 12px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.obsidian-graph-node.current circle {
+  fill: color-mix(in srgb, var(--accent, var(--red)) 22%, var(--bg));
+  stroke: var(--accent, var(--red));
+  stroke-width: 2.4;
+}
+
+.obsidian-graph-node.missing {
+  cursor: default;
+  opacity: 0.48;
+}
+
+.obsidian-graph-node.missing circle {
+  stroke-dasharray: 4 3;
+}
+
+/* ─── Hidden Utility ───────────────────────────────────────── */
+.hidden {
+  display: none !important;
+}
+
+/* ─── Rail minimized indicator ─────────────────────────────── */
+.icon-rail-btn.rail-minimized {
+  position: relative;
+}
+
+.icon-rail-btn.rail-minimized::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent, var(--red));
+  box-shadow: 0 0 4px var(--accent, var(--red));
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .obsidian-panel-content {
+    width: 75vw;
+    min-width: 400px;
+  }
+  
+  body.obsidian-open #obsidian-panel {
+    width: 75vw;
+    min-width: 400px;
+  }
+  
+  .obsidian-sidebar {
+    width: 180px;
+  }
+}
+
+@media (max-width: 640px) {
+  .obsidian-panel-content {
+    width: 100vw;
+    min-width: 0;
+    max-width: 100vw;
+  }
+  
+  body.obsidian-open #obsidian-panel {
+    width: 100vw;
+    min-width: 0;
+    max-width: 100vw;
+  }
+  
+  .obsidian-panel-body {
+    flex-direction: column;
+  }
+  
+  .obsidian-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding-right: 0;
+    padding-bottom: 8px;
+  }
+  
+  .obsidian-file-tree {
+    max-height: 120px;
+    width: 100%;
+  }
+  
+  .obsidian-editor-panes {
+    flex-direction: column;
+  }
+  
+  .obsidian-divider {
+    width: auto;
+    height: 1px;
+  }
+}
