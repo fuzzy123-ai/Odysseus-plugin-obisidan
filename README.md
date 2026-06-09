@@ -1,6 +1,11 @@
 # Odysseus Plugin for Obsidian
 
 A plugin project for integrating with the Odysseus local AI platform.
+https://github.com/fuzzy123-ai/odysseus-fuzzy is my Odyyseus Fork
+Plugin System:
+https://github.com/kanaru-dev/odysseus/tree/plugins-feature
+
+Beware this is all WIP and changes daily. 
 
 ## Branching model
 
