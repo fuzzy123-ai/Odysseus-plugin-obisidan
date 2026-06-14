@@ -1,10 +1,10 @@
 # Odysseus Plugin for Obsidian
 
-Obsidian vault integration for the Odysseus local AI workspace.
+Obsidian vault integration for the [Odysseus](https://github.com/fuzzy123-ai/odysseus-fuzzy) local AI workspace.
 
-The plugin adds a full vault workspace to Odysseus: a dockable editor UI, secure per-user vault storage, graph and tag intelligence, AI-assisted project planning, memory review workflows, and agent-callable tools for reading, writing, searching, organizing, exporting, and importing Markdown notes.
+This is a **standalone plugin** designed to be dynamically loaded into the Odysseus workspace via the new Odysseus Plugin System API. It adds a complete vault workspace to Odysseus, offering a dockable editor UI, secure per-user vault isolation, graph and tag intelligence, AI-assisted project planning, memory review workflows, and a full suite of agent-callable tools for reading, writing, searching, organizing, exporting, and importing Markdown notes.
 
-It also registers a read-only context provider for the Fuzzy/Odysseus context-orchestrator work. The provider lets Odysseus preload relevant vault context through a generic plugin API while keeping all Obsidian-specific rules inside this plugin.
+It also registers a read-only context provider for the Odysseus context-orchestrator. This allows Odysseus to preload relevant vault context through a generic plugin API while keeping all Obsidian-specific rules self-contained inside this plugin.
 
 ## Feature Overview
 
@@ -222,7 +222,7 @@ Implemented in the active Fuzzy/Odysseus branch:
 From the root of an Odysseus checkout:
 
 ```powershell
-git clone -b dev https://github.com/fuzzy123-ai/Odysseus-plugin-obisidan.git plugins/obsidian
+git clone -b dev https://github.com/fuzzy123-ai/Odysseus-plugin-obsidian.git plugins/obsidian
 ```
 
 Restart Odysseus after cloning. The plugin manager imports `plugins/obsidian/plugin.py`, registers the API routes, and exposes the UI entry at `/api/plugins/obsidian/app`.
